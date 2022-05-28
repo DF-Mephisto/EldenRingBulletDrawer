@@ -1,9 +1,14 @@
 #pragma once
 #include <QtWidgets>
+#include <stdexcept>
 
 #include "ControlMenu.h"
 #include "DrawingNet.h"
 #include "ButtonSetter.h"
+#include "Constants.h"
+#include "MemReader.h"
+
+using std::runtime_error;
 
 class EldenRingBulletDrawings : public QWidget
 {
@@ -14,7 +19,12 @@ public:
 
 private:
     ControlMenu* controlMenu;
-    DrawingNet* net;
-    QPushButton* draw;
+    DrawingNet* drawingNet;
+    QPushButton* drawBtn;
     ButtonSetter* buttonSetter;
+
+    MemReader reader;
+
+private slots:
+    void draw();
 };

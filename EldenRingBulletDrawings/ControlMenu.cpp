@@ -8,10 +8,13 @@ ControlMenu::ControlMenu(QWidget* pwgt)
 	xSize = new LineEdit("Horizontal size: ", new QRegExpValidator(QRegExp("[1-9][0-9]{,2}")));
 	ySize = new LineEdit("Vertical size: ", new QRegExpValidator(QRegExp("[1-9][0-9]{,2}")));
 	zSize = new LineEdit("Layers: ", new QRegExpValidator(QRegExp("[1-9][0-9]{,2}")));
-	space->setValue("1,0");
+	delay = new LineEdit("Delay: ", new QRegExpValidator(QRegExp("[0-9]{,4}")));
+	bulletId->setValue("10401000");
+	space->setValue("0.3");
 	xSize->setValue("10");
 	ySize->setValue("10");
 	zSize->setValue("1");
+	delay->setValue("1");
 
 	currentLayer = new QComboBox();
 	set = new QPushButton("Set");
@@ -27,7 +30,9 @@ ControlMenu::ControlMenu(QWidget* pwgt)
 	QHBoxLayout* footerLayout = new QHBoxLayout();
 	footerLayout->addWidget(currentLayerLabel, 0.7);
 	footerLayout->addWidget(currentLayer, 1);
+	footerLayout->addWidget(delay, 1);
 	footerLayout->addWidget(set, 0.7);
+	footerLayout->setSpacing(30);
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(bulletId);
@@ -45,7 +50,7 @@ ControlMenu::ControlMenu(QWidget* pwgt)
 
 int ControlMenu::getBulletId()
 {
-	bool status;
+	bool status = false;
 	int res = bulletId->getValue().toInt(&status);
 	if (!status)
 		throw std::runtime_error("Wrong Bullet ID value");
@@ -56,8 +61,8 @@ int ControlMenu::getBulletId()
 
 float ControlMenu::getSpace()
 {
-	bool status;
-	float res = bulletId->getValue().toFloat(&status);
+	bool status = false;
+	float res = space->getValue().toFloat(&status);
 	if (!status)
 		throw std::runtime_error("Wrong space value");
 
@@ -75,7 +80,7 @@ void ControlMenu::setNetSize()
 void ControlMenu::fillZSize()
 {
 	currentLayer->clear();
-
+	
 	int size = zSize->getValue().toInt();
 	for (int i = 1; i <= size; i++)
 	{
@@ -90,4 +95,24 @@ void ControlMenu::paintEvent(QPaintEvent* e)
 	QPainter p(this);
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 	QWidget::paintEvent(e);
+}
+
+int ControlMenu::getX()
+{
+	return xSize->getValue().toInt();
+}
+
+int ControlMenu::getY()
+{
+	return ySize->getValue().toInt();
+}
+
+int ControlMenu::getZ()
+{
+	return zSize->getValue().toInt();
+}
+
+int ControlMenu::getDelay()
+{
+	return delay->getValue().toInt();
 }

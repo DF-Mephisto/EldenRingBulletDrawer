@@ -1,12 +1,12 @@
 #include "EldenRingBulletDrawings.h"
 
-EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget *parent)
+EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget* parent)
     : QWidget(parent)
 {
     QLocale::setDefault(QLocale(QLocale::English));
     setWindowTitle("Elden Ring Bullet Drawer @By Mephisto");
 
-    resize(500, 700);
+    resize(503, 745);
 
     QFile styleFile(":/EldenRingBulletDrawings/style");
     styleFile.open(QIODevice::ReadOnly);
@@ -19,13 +19,13 @@ EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget *parent)
     setPalette(pal);
 
     controlMenu = new ControlMenu();
-    net = new DrawingNet();
+    drawingNet = new DrawingNet(BLOCKSIZE);
 
     QScrollArea* netSA = new QScrollArea();
-    netSA->setWidget(net);
+    netSA->setWidget(drawingNet);
 
-    draw = new QPushButton("Draw");
-    draw->setFixedHeight(40);
+    drawBtn = new QPushButton("Draw");
+    drawBtn->setFixedHeight(40);
     buttonSetter = new ButtonSetter();
     buttonSetter->setPlaceholderText("Hotkey");
     buttonSetter->setFixedHeight(40);
@@ -36,7 +36,7 @@ EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget *parent)
 
     QHBoxLayout* drawLayout = new QHBoxLayout();
     drawLayout->addWidget(buttonSetter, 2);
-    drawLayout->addWidget(draw, 3);
+    drawLayout->addWidget(drawBtn, 3);
     drawLayout->setContentsMargins(10, 10, 10, 10);
     drawLayout->setSpacing(20);
 
@@ -48,4 +48,55 @@ EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget *parent)
     layout->setSpacing(0);
 
     setLayout(layout);
+
+    connect(controlMenu, SIGNAL(netSizeChanged(int, int, int)), drawingNet, SLOT(netSizeChanged(int, int, int)));
+    connect(controlMenu, SIGNAL(currentLayerChanged(int)), drawingNet, SLOT(currentLayerChanged(int)));
+    connect(drawBtn, SIGNAL(clicked()), this, SLOT(draw()));
+
+    controlMenu->setNetSize();
+}
+
+void EldenRingBulletDrawings::draw()
+{
+    DWORD32 bulletId;
+    float space;
+    bool*** net;
+
+    try
+    {
+        if (!reader.initialize())
+            throw runtime_error("Can't find Elden Ring process");
+
+        bulletId = controlMenu->getBulletId();
+        space = controlMenu->getSpace();
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox::critical(nullptr, "Error", e.what());
+        return;
+    }
+
+    net = drawingNet->getNet();
+    int xSize = controlMenu->getX();
+    int ySize = controlMenu->getY();
+    int zSize = controlMenu->getZ();
+    int delay = controlMenu->getDelay();
+
+    for (int z = 0; z < zSize; z++)
+    {
+        for (int y = 0; y < ySize; y++)
+        {
+            for (int x = 0; x < xSize; x++)
+            {
+                if (net[z][y][x])
+                {
+                    reader.spawnBullet(bulletId, 
+                        (float)x * space, 
+                        (float)(ySize - y) * space, 
+                        (float)z * space);
+                    Sleep(delay);
+                }
+            }
+        }
+    }
 }

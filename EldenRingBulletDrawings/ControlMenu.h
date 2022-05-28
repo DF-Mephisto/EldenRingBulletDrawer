@@ -12,6 +12,13 @@ public:
 	ControlMenu(QWidget* pwgt = Q_NULLPTR);
 	int getBulletId();
 	float getSpace();
+	int getX();
+	int getY();
+	int getZ();
+	int getDelay();
+
+protected:
+	void paintEvent(QPaintEvent* e) override;
 
 private:
 	LineEdit* bulletId;
@@ -19,15 +26,13 @@ private:
 	LineEdit* xSize;
 	LineEdit* ySize;
 	LineEdit* zSize;
+	LineEdit* delay;
 	QComboBox* currentLayer;
 	QPushButton* set;
 
 	void fillZSize();
 
-protected:
-	void paintEvent(QPaintEvent* e);
-
-private slots:
+public slots:
 	void setNetSize();
 
 signals:
