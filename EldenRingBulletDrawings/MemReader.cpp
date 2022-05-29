@@ -89,6 +89,7 @@ void MemReader::closeProc()
 {
 	CloseHandle(pHandle);
 	pHandle = NULL;
+	pID = NULL;
 }
 
 void MemReader::spawnBullet(int bulletId, float x, float y, float z)
@@ -96,23 +97,34 @@ void MemReader::spawnBullet(int bulletId, float x, float y, float z)
 	writeMemory((LPVOID)(dataMemory + BULLET_ID), (LPVOID)&bulletId, 4);
 
 	BYTE coords[12]{ 0 };
-	DWORD64 posAddr;
-	readMemory((LPVOID)worldChrManAddr, (LPVOID)&posAddr, 8);
-	readMemory((LPVOID)(posAddr + 0x18468), (LPVOID)&posAddr, 8);
-	readMemory((LPVOID)(posAddr + 0x190), (LPVOID)&posAddr, 8);
-	readMemory((LPVOID)(posAddr + 0x68), (LPVOID)&posAddr, 8);
-	readMemory((LPVOID)(posAddr + 0x70), (LPVOID)&coords, 12);
+	DWORD64 addr;
+	readMemory((LPVOID)worldChrManAddr, (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x18468), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x190), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x68), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x70), (LPVOID)&coords, 12);
 
-	*((float*)(coords)) = *((float*)(coords)) + z;
-	*((float*)(coords + 4)) = *((float*)(coords + 4)) + 1.5f + y;
-	*((float*)(coords + 8)) = *((float*)(coords + 8)) + x;
+	*((float*)(coords)) = *((float*)(coords)) + x;
+	*((float*)(coords + 4)) = *((float*)(coords + 4)) + y;
+	*((float*)(coords + 8)) = *((float*)(coords + 8)) + z;
 	writeMemory((LPVOID)(dataMemory + BULLET_COORDS), (LPVOID)&coords, 12);
 
 	CreateRemoteThread(pHandle, 0, 0, (LPTHREAD_START_ROUTINE)scriptMemory, nullptr, 0, 0);
 
 	//wstringstream str;
-	//str << std::hex << allocatedMemory << " " << *((float*)(coords + 4));
+	//str << std::hex << x << " " << z << " " << angle << " " << horPos.x << " " << horPos.y;
 	//MessageBox(0, str.str().c_str(), L"test", MB_OK);
+}
+
+float MemReader::getCharAngle()
+{
+	float angle;
+	DWORD64 addr;
+
+	readMemory((LPVOID)worldChrManAddr, (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x18468), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x6D0), (LPVOID)&angle, 4);
+	return angle;
 }
 
 bool MemReader::readMemory(LPVOID source, LPVOID destination, int size)
@@ -163,6 +175,7 @@ void MemReader::hookMemory()
 	catch (const runtime_error& e)
 	{
 		free();
+		throw;
 	}
 
 	scriptSize = getScriptSize(spawnBulletProc);

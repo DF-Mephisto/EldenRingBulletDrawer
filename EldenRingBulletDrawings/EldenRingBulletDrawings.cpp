@@ -90,10 +90,15 @@ void EldenRingBulletDrawings::draw()
             {
                 if (net[z][y][x])
                 {
-                    reader.spawnBullet(bulletId, 
-                        (float)x * space, 
-                        (float)(ySize - y) * space, 
-                        (float)z * space);
+                    float xCoord = (float)x * space - xSize * space / 2;
+                    float yCoord = (float)(ySize - y) * space + 1.5f;
+                    float zCoord = (float)z * space;
+                    
+                    fPOINT horPos = VectorTransformer::rotate2D(reader.getCharAngle(), fPOINT{ xCoord, zCoord });
+                    xCoord = horPos.x;
+                    zCoord = horPos.y;
+
+                    reader.spawnBullet(bulletId, xCoord, yCoord, zCoord);
                     Sleep(delay);
                 }
             }

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Constants.h"
+#include "VectorTransformer.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ public:
 	bool initialize();
 	bool getProcessStatus();
 	void closeProc();
+	float getCharAngle();
 	void spawnBullet(int bulletId, float x, float y, float z);
 
 private:
