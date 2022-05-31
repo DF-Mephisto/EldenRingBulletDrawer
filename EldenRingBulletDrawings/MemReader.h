@@ -26,10 +26,11 @@ public:
 	bool getProcessStatus();
 	void closeProc();
 	float getCharAngle();
-	void spawnBullet(int bulletId, float x, float y, float z);
+	void spawnBullet(int bulletId, float x, float y, float z, float vectorX, float vectorZ);
 
 private:
-	wstring   processName;
+	vector<wstring>   processNames;
+	wstring chosenProcessName;
 	HANDLE    pHandle;
 	DWORD	  pID;
 	DWORD     moduleSize;
@@ -53,6 +54,6 @@ private:
 	void free();
 	DWORD getScriptSize(LPVOID script);
 	vector<wstring> parseHexString(wstring aob);
-
+	bool validateProcessName(const wchar_t* processName);
 };
 

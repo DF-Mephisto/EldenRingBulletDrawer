@@ -2,7 +2,8 @@
 
 MemReader::MemReader()
 {
-	processName = L"eldenring.exe";
+	processNames.push_back(L"eldenring.exe");
+	processNames.push_back(L"start_protected_game.exe");
 
 	pHandle = NULL;
 	pID = 0;
@@ -33,6 +34,17 @@ bool MemReader::initialize()
 	return getProcessStatus();
 }
 
+bool MemReader::validateProcessName(const wchar_t* processName)
+{
+	for (wstring validName : processNames)
+	{
+		if (validName == processName)
+			return true;
+	}
+
+	return false;
+}
+
 DWORD MemReader::getProcess()
 {
 	HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -41,7 +53,8 @@ DWORD MemReader::getProcess()
 
 	if (Process32First(snapshot, &pInfo)) {
 		do {
-			if (processName == pInfo.szExeFile) {
+			if (validateProcessName(pInfo.szExeFile)) {
+				chosenProcessName = pInfo.szExeFile;
 				pID = pInfo.th32ProcessID;
 				break;
 			}
@@ -60,7 +73,7 @@ DWORD64 MemReader::getModule()
 
 	if (Module32First(snapshot, &mInfo)) {
 		do {
-			if (wcsstr(mInfo.szExePath, processName.c_str())) {
+			if (wcsstr(mInfo.szExePath, chosenProcessName.c_str())) {
 				baseAddress = (DWORD64)mInfo.modBaseAddr;
 				moduleSize = mInfo.modBaseSize;
 				break;
@@ -92,11 +105,12 @@ void MemReader::closeProc()
 	pID = NULL;
 }
 
-void MemReader::spawnBullet(int bulletId, float x, float y, float z)
+void MemReader::spawnBullet(int bulletId, float x, float y, float z, float vectorX, float vectorZ)
 {
 	writeMemory((LPVOID)(dataMemory + BULLET_ID), (LPVOID)&bulletId, 4);
 
 	BYTE coords[12]{ 0 };
+	float vectors[3] = { vectorX, 0, vectorZ };
 	DWORD64 addr;
 	readMemory((LPVOID)worldChrManAddr, (LPVOID)&addr, 8);
 	readMemory((LPVOID)(addr + 0x18468), (LPVOID)&addr, 8);
@@ -104,10 +118,14 @@ void MemReader::spawnBullet(int bulletId, float x, float y, float z)
 	readMemory((LPVOID)(addr + 0x68), (LPVOID)&addr, 8);
 	readMemory((LPVOID)(addr + 0x70), (LPVOID)&coords, 12);
 
+	//Write coordinates
 	*((float*)(coords)) = *((float*)(coords)) + x;
 	*((float*)(coords + 4)) = *((float*)(coords + 4)) + y;
 	*((float*)(coords + 8)) = *((float*)(coords + 8)) + z;
 	writeMemory((LPVOID)(dataMemory + BULLET_COORDS), (LPVOID)&coords, 12);
+
+	//Write direction vectors
+	writeMemory((LPVOID)(dataMemory + BULLET_VECTORS), (LPVOID)&vectors, 12);
 
 	CreateRemoteThread(pHandle, 0, 0, (LPTHREAD_START_ROUTINE)scriptMemory, nullptr, 0, 0);
 

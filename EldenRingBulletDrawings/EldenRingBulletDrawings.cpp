@@ -54,6 +54,17 @@ EldenRingBulletDrawings::EldenRingBulletDrawings(QWidget* parent)
     connect(drawBtn, SIGNAL(clicked()), this, SLOT(draw()));
 
     controlMenu->setNetSize();
+    startTimer(100);
+}
+
+void EldenRingBulletDrawings::timerEvent(QTimerEvent* e)
+{
+    //VK_NUMPAD0
+    if (GetAsyncKeyState(buttonSetter->getKey()) & 1)
+    {
+        if (reader.getProcessStatus())
+                draw();
+    }
 }
 
 void EldenRingBulletDrawings::draw()
@@ -93,12 +104,13 @@ void EldenRingBulletDrawings::draw()
                     float xCoord = (float)x * space - xSize * space / 2;
                     float yCoord = (float)(ySize - y) * space + 1.5f;
                     float zCoord = (float)z * space;
+                    float angle = reader.getCharAngle();
                     
-                    fPOINT horPos = VectorTransformer::rotate2D(reader.getCharAngle(), fPOINT{ xCoord, zCoord });
+                    fPOINT horPos = VectorTransformer::rotate2D(angle, fPOINT{ xCoord, zCoord });
                     xCoord = horPos.x;
                     zCoord = horPos.y;
 
-                    reader.spawnBullet(bulletId, xCoord, yCoord, zCoord);
+                    reader.spawnBullet(bulletId, xCoord, yCoord, zCoord, -sin(angle), -cos(angle));
                     Sleep(delay);
                 }
             }

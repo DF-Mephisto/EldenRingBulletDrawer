@@ -7,3 +7,4 @@
 #define BULLET_MAN_AOB 0x0
 #define BULLET_ID 0x14
 #define BULLET_COORDS 0x80
+#define BULLET_VECTORS 0x70

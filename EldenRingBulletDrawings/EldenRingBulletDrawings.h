@@ -25,6 +25,9 @@ private:
 
     MemReader reader;
 
+protected:
+    void timerEvent(QTimerEvent* e) override;
+
 private slots:
     void draw();
 };

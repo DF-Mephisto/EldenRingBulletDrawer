@@ -8,8 +8,8 @@ ButtonSetter::ButtonSetter(QWidget* pwgt)
 
 void ButtonSetter::keyPressEvent(QKeyEvent* e)
 {
-	key = e->key();
-	setText(QKeySequence(key).toString());
+	key = e->nativeVirtualKey();
+	setText(QKeySequence(e->key()).toString());
 }
 
 int ButtonSetter::getKey()
