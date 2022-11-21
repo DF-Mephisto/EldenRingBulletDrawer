@@ -107,31 +107,34 @@ void MemReader::closeProc()
 
 void MemReader::spawnBullet(int bulletId, float x, float y, float z, float vectorX, float vectorZ)
 {
+
+	float coords[3]{ x, y, z };
+	float vectors[3]{ vectorX, 0, vectorZ };
+
 	writeMemory((LPVOID)(dataMemory + BULLET_ID), (LPVOID)&bulletId, 4);
-
-	BYTE coords[12]{ 0 };
-	float vectors[3] = { vectorX, 0, vectorZ };
-	DWORD64 addr;
-	readMemory((LPVOID)worldChrManAddr, (LPVOID)&addr, 8);
-	readMemory((LPVOID)(addr + 0x18468), (LPVOID)&addr, 8);
-	readMemory((LPVOID)(addr + 0x190), (LPVOID)&addr, 8);
-	readMemory((LPVOID)(addr + 0x68), (LPVOID)&addr, 8);
-	readMemory((LPVOID)(addr + 0x70), (LPVOID)&coords, 12);
-
-	//Write coordinates
-	*((float*)(coords)) = *((float*)(coords)) + x;
-	*((float*)(coords + 4)) = *((float*)(coords + 4)) + y;
-	*((float*)(coords + 8)) = *((float*)(coords + 8)) + z;
 	writeMemory((LPVOID)(dataMemory + BULLET_COORDS), (LPVOID)&coords, 12);
-
-	//Write direction vectors
 	writeMemory((LPVOID)(dataMemory + BULLET_VECTORS), (LPVOID)&vectors, 12);
 
 	CreateRemoteThread(pHandle, 0, 0, (LPTHREAD_START_ROUTINE)scriptMemory, nullptr, 0, 0);
 
 	//wstringstream str;
-	//str << std::hex << x << " " << z << " " << angle << " " << horPos.x << " " << horPos.y;
+	//str << std::fixed << x << " " << y << " " << z;
+	//str << endl;
+	//str << std::fixed << vectorX << " "  << " " << vectorZ;
 	//MessageBox(0, str.str().c_str(), L"test", MB_OK);
+}
+
+POINT3D MemReader::getCharPos()
+{
+	POINT3D p;
+	DWORD64 addr;
+	readMemory((LPVOID)worldChrManAddr, (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x18468), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x190), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x68), (LPVOID)&addr, 8);
+	readMemory((LPVOID)(addr + 0x70), (LPVOID)&p, 12);
+
+	return p;
 }
 
 float MemReader::getCharAngle()

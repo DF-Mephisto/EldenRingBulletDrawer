@@ -9,6 +9,7 @@
 
 #include "Constants.h"
 #include "VectorTransformer.h"
+#include "POINT3D.h"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ public:
 	bool getProcessStatus();
 	void closeProc();
 	float getCharAngle();
+	POINT3D getCharPos();
 	void spawnBullet(int bulletId, float x, float y, float z, float vectorX, float vectorZ);
 
 private:

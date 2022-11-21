@@ -7,6 +7,7 @@
 #include "ButtonSetter.h"
 #include "Constants.h"
 #include "MemReader.h"
+#include "POINT3D.h"
 
 using std::runtime_error;
 

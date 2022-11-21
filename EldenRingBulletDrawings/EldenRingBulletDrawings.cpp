@@ -93,6 +93,9 @@ void EldenRingBulletDrawings::draw()
     int zSize = controlMenu->getZ();
     int delay = controlMenu->getDelay();
 
+    float angle = reader.getCharAngle();
+    POINT3D pos = reader.getCharPos();
+
     for (int z = 0; z < zSize; z++)
     {
         for (int y = 0; y < ySize; y++)
@@ -104,11 +107,14 @@ void EldenRingBulletDrawings::draw()
                     float xCoord = (float)x * space - xSize * space / 2;
                     float yCoord = (float)(ySize - y) * space + 1.5f;
                     float zCoord = (float)z * space;
-                    float angle = reader.getCharAngle();
                     
                     fPOINT horPos = VectorTransformer::rotate2D(angle, fPOINT{ xCoord, zCoord });
                     xCoord = horPos.x;
                     zCoord = horPos.y;
+
+                    xCoord += pos.x;
+                    yCoord += pos.y;
+                    zCoord += pos.z;
 
                     reader.spawnBullet(bulletId, xCoord, yCoord, zCoord, -sin(angle), -cos(angle));
                     Sleep(delay);
